@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoreBox - Lua Обфускатор</title>
+    <link rel="icon" type="image/png" href="icon.png">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+        }
+        html,
+        body {
+            height: 100%;
+        }
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            color: #e2e8f0;
+            min-height: 100vh;
+            cursor: url("cursor.png") 0 0, auto;
+        }
+        button,
+        .file-label {
+            cursor: url("cursor.png") 0 0, auto;
+        }
+        textarea,
+        textarea * {
+            -webkit-user-select: text;
+            user-select: text;
+            -webkit-touch-callout: default;
+        }
+        #startHome {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(rgba(18, 20, 29, 0.85), rgba(18, 20, 29, 0.85)), url("background.jpg") center / cover no-repeat fixed;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            height: 100vh;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .start-container {
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            gap: 24px;
+        }
+        .logo {
+            height: 64px;
+            width: auto;
+            object-fit: contain;
+            margin-bottom: 8px;
+        }
+        .main-btn {
+            padding: 14px 42px;
+            font-size: 22px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            min-width: 200px;
+            transition: background 0.2s;
+        }
+        .main-btn:hover {
+            background: #1d4ed8;
+        }
+        #devPage {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(rgba(18, 20, 29, 0.85), rgba(18, 20, 29, 0.85)), url("background.jpg") center / cover no-repeat fixed;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            height: 100vh;
+            z-index: 10;
+        }
+        .dev-container {
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            gap: 32px;
+        }
+        .dev-list {
+            text-align: center;
+        }
+        .dev-list h2 {
+            color: #60a5fa;
+            margin-bottom: 16px;
+            font-size: 26px;
+        }
+        .dev-item {
+            font-size: 17px;
+            margin: 8px 0;
+            color: #cbd5e1;
+        }
+        .back-btn {
+            padding: 12px 32px;
+            font-size: 18px;
+            background: #7c3aed;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+        .back-btn:hover {
+            background: #6d28d9;
+        }
+        #settingPage {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(rgba(18, 20, 29, 0.85), rgba(18, 20, 29, 0.85)), url("background.jpg") center / cover no-repeat fixed;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            height: 100vh;
+            z-index: 10;
+        }
+        .setting-container {
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            gap: 28px;
+        }
+        .setting-box {
+            background: #1e2230;
+            border-radius: 10px;
+            padding: 24px;
+            min-width: 340px;
+            max-width: 520px;
+            width: 100%;
+        }
+        .setting-box h2 {
+            text-align: center;
+            color: #60a5fa;
+            margin-bottom: 24px;
+        }
+        .setting-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 18px 0;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+        .setting-row label {
+            font-size: 16px;
+        }
+        select {
+            padding: 6px 8px;
+            border-radius: 4px;
+            background: #272b3b;
+            color: #e2e8f0;
+            border: 1px solid #475569;
+        }
+        #workspace {
+            display: none;
+            background: linear-gradient(rgba(18, 20, 29, 0.85), rgba(18, 20, 29, 0.85)), url("background.jpg") center / cover no-repeat fixed;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            height: 100vh;
+            padding: 20px;
+            z-index: 10;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .title-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+        .gorebox-logo {
+            height: 48px;
+            width: auto;
+            object-fit: contain;
+        }
+        h1 {
+            color: #60a5fa;
+        }
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        .panel {
+            background: #1e2230;
+            border-radius: 8px;
+            padding: 14px;
+        }
+        .panel h3 {
+            margin-bottom: 10px;
+            color: #94a3b8;
+        }
+        textarea {
+            width: 100%;
+            min-height: 420px;
+            background: #0f111a;
+            color: #cbd5e1;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            padding: 12px;
+            font-family: "Consolas", "JetBrains Mono", monospace;
+            font-size: 14px;
+            resize: vertical;
+            cursor: url("cursor.png") 0 0, auto;
+            tab-size: 4;
+        }
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 12px 0;
+            align-items: center;
+        }
+        button,
+        .file-label {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 14px;
+            transition: opacity 0.2s, transform 0.1s;
+        }
+        button:active,
+        .file-label:active {
+            transform: scale(0.96);
+        }
+        .btn-run {
+            background: #2563eb;
+            color: white;
+        }
+        .btn-run:hover {
+            background: #1d4ed8;
+        }
+        .btn-copy {
+            background: #059669;
+            color: white;
+        }
+        .btn-copy:hover {
+            background: #047857;
+        }
+        .btn-download {
+            background: #7c3aed;
+            color: white;
+        }
+        .btn-download:hover {
+            background: #6d28d9;
+        }
+        .btn-clear {
+            background: #b91c1c;
+            color: white;
+        }
+        .btn-clear:hover {
+            background: #991b1b;
+        }
+        .btn-exit {
+            background: #475569;
+            color: white;
+        }
+        .btn-exit:hover {
+            background: #334155;
+        }
+        .file-label {
+            background: #475569;
+            color: #fff;
+            display: inline-block;
+        }
+        .file-label:hover {
+            background: #334155;
+        }
+        input[type="file"] {
+            display: none;
+        }
+        .tip {
+            font-size: 13px;
+            color: #9ca3af;
+            margin-top: 8px;
+            min-height: 20px;
+        }
+        .option-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px 24px;
+            align-items: center;
+            margin: 8px 0 12px 0;
+            background: #1a1e2b;
+            padding: 10px 16px;
+            border-radius: 8px;
+        }
+        .option-row label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            color: #cbd5e1;
+            cursor: url("cursor.png") 0 0, auto;
+        }
+        .option-row input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #2563eb;
+            cursor: url("cursor.png") 0 0, auto;
+        }
+        .option-row input[type="number"] {
+            width: 52px;
+            padding: 4px 6px;
+            border-radius: 4px;
+            background: #0f111a;
+            color: #e2e8f0;
+            border: 1px solid #475569;
+            font-size: 14px;
+            text-align: center;
+        }
+        .option-row select {
+            padding: 4px 6px;
+            border-radius: 4px;
+            background: #0f111a;
+            color: #e2e8f0;
+            border: 1px solid #475569;
+            font-size: 14px;
+        }
+        @media(max-width:768px) {
+            .title-wrapper {
+                flex-direction: column;
+                gap: 8px;
+            }
+            .gorebox-logo {
+                height: 40px;
+            }
+            .row {
+                grid-template-columns: 1fr;
+            }
+            .setting-box {
+                min-width: unset;
+                padding: 16px;
+            }
+            .option-row {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+            .option-row label {
+                justify-content: space-between;
+            }
+            .main-btn {
+                min-width: 160px;
+                padding: 12px 28px;
+                font-size: 18px;
+            }
+        }
+        @media(max-width:480px) {
+            .btn-group button,
+            .btn-group .file-label {
+                flex: 1 1 100%;
+                justify-content: center;
+                text-align: center;
+            }
+            textarea {
+                min-height: 260px;
+            }
+        }
+        /* scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f111a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ========== START HOME ========== -->
+    <div id="startHome">
+        <div class="start-container">
+            <img class="logo" src="logo.png" alt="Logo">
+            <button class="main-btn" id="btnStart"></button>
+            <button class="main-btn" id="btnDev"></button>
+            <button class="main-btn" id="btnSetting"></button>
+        </div>
+    </div>
+
+    <!-- ========== DEV PAGE ========== -->
+    <div id="devPage">
+        <div class="dev-container">
+            <div class="dev-list">
+                <h2 id="devTitle"></h2>
+                <div class="dev-item">Main Dev: BZDev (GoreBox Bai Zi)</div>
+                <div class="dev-item">Helper: BZDev (GoreBox Bai Zi)</div>
+                <div class="dev-item">Tool: GoreBox Lua Obfuscator</div>
+                <div class="dev-item" style="color:#60a5fa;margin-top:12px;">v2.0 — Advanced Obfuscation Engine</div>
+            </div>
+            <button class="back-btn" id="btnBackDev"></button>
+        </div>
+    </div>
+
+    <!-- ========== SETTINGS PAGE ========== -->
+    <div id="settingPage">
+        <div class="setting-container">
+            <div class="setting-box">
+                <h2 id="setPageTitle"></h2>
+                <div class="setting-row">
+                    <label id="labelLang"></label>
+                    <select id="selLang">
+                        <option value="ru">Русский</option>
+                        <option value="en">English</option>
+                        <option value="zh">中文</option>
+                    </select>
+                </div>
+            </div>
+            <button class="back-btn" id="btnSettingBack"></button>
+        </div>
+    </div>
+
+    <!-- ========== WORKSPACE ========== -->
+    <div id="workspace">
+        <div class="container">
+            <div class="title-wrapper">
+                <img src="logo.png" alt="GoreBox Logo" class="gorebox-logo">
+                <h1 id="workTitle"></h1>
+            </div>
+
+            <!-- 选项栏 -->
+            <div class="option-row" id="optRow">
+                <label>
+                    <input type="checkbox" id="optString" checked>
+                    <span id="optStringLabel">Обефусцировать строки</span>
+                </label>
+                <label>
+                    <input type="checkbox" id="optNumber" checked>
+                    <span id="optNumberLabel">Обефусцировать числа</span>
+                </label>
+                <label>
+                    <input type="checkbox" id="optCompress">
+                    <span id="optCompressLabel">Сжать код (одна строка)</span>
+                </label>
+                <label style="gap:4px;">
+                    <span id="optDepthLabel">Глубина</span>
+                    <input type="number" id="optDepth" value="100" min="1" max="500">
+                </label>
+                <label style="gap:4px;">
+                    <span id="optNumLenLabel">Длина чисел</span>
+                    <input type="number" id="optNumLen" value="1" min="1" max="5">
+                </label>
+            </div>
+
+            <div class="row">
+                <div class="panel">
+                    <h3 id="srcLabel"></h3>
+                    <textarea id="srcLua"></textarea>
+                </div>
+                <div class="panel">
+                    <h3 id="outLabel"></h3>
+                    <textarea id="outLua" readonly></textarea>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <label class="file-label">
+                    <input type="file" id="fileInput" accept=".lua">
+                    <span id="labUpload"></span>
+                </label>
+                <button class="btn-run" id="runBtnText"></button>
+                <button class="btn-copy" id="copyBtnText"></button>
+                <button class="btn-download" id="dlBtnText"></button>
+                <button class="btn-clear" id="clearBtnText"></button>
+                <button class="btn-exit" id="exitBtnText"></button>
+            </div>
+            <div class="tip" id="tipText"></div>
+        </div>
+    </div>
+
+    <script>
+        // ================================================================
+        //  1.  МНОГОЯЗЫЧНАЯ ЛОКАЛИЗАЦИЯ
+        // ================================================================
+        const locales = {
+            ru: {
+                homeStart: "Старт",
+                homeDev: "Разработчики",
+                homeSet: "Настройки",
+                devPageTitle: "Разработчики",
+                devBack: "← Вернуться на главную",
+                setPageTitle: "Настройки",
+                setLangLabel: "Язык",
+                workPageTitle: "Lua Обфускатор",
+                workSrc: "Исходный код Lua",
+                workOut: "Результат обфускации",
+                workPlaceholder: "Вставьте код Lua или загрузите файл .lua",
+                labUpload: "📂 Загрузить файл Lua",
+                btnObf: "Высоко-плоская обфускация",
+                btnCopy: "Копировать результат",
+                btnDl: "Скачать .lua",
+                btnClear: "Очистить всё",
+                btnExit: "Выйти",
+                tipText: "⚙️ Строки → табличный поиск · Числа → арифметика · Сжатие → удаление комментариев",
+                msgCopyOk: "✅ Скопировано!",
+                msgCopyFail: "❌ Не удалось скопировать",
+                msgNeedObf: "⚠️ Сначала выполните обфускацию",
+                optString: "Обефусцировать строки",
+                optNumber: "Обефусцировать числа",
+                optCompress: "Сжать код (одна строка)",
+                optDepth: "Глубина",
+                optNumLen: "Длина чисел",
+                statusObfDone: "✅ Обфускация завершена",
+                statusError: "❌ Ошибка: "
+            },
+            en: {
+                homeStart: "Start",
+                homeDev: "Developers",
+                homeSet: "Settings",
+                devPageTitle: "Developers",
+                devBack: "← Back Home",
+                setPageTitle: "Settings",
+                setLangLabel: "Language",
+                workPageTitle: "Lua Obfuscator",
+                workSrc: "Original Lua Code",
+                workOut: "Obfuscated Output",
+                workPlaceholder: "Paste your Lua code or upload .lua file",
+                labUpload: "📂 Upload Lua File",
+                btnObf: "High-Flat Obfuscation",
+                btnCopy: "Copy Result",
+                btnDl: "Download .lua",
+                btnClear: "Clear All",
+                btnExit: "Exit",
+                tipText: "⚙️ Strings → table lookup · Numbers → arithmetic · Compress → remove comments",
+                msgCopyOk: "✅ Copied!",
+                msgCopyFail: "❌ Copy failed",
+                msgNeedObf: "⚠️ Please run obfuscation first",
+                optString: "Obfuscate strings",
+                optNumber: "Obfuscate numbers",
+                optCompress: "Compress code (one line)",
+                optDepth: "Depth",
+                optNumLen: "Number length",
+                statusObfDone: "✅ Obfuscation complete",
+                statusError: "❌ Error: "
+            },
+            zh: {
+                homeStart: "开始",
+                homeDev: "开发者",
+                homeSet: "设置",
+                devPageTitle: "开发者",
+                devBack: "← 返回首页",
+                setPageTitle: "设置",
+                setLangLabel: "语言",
+                workPageTitle: "Lua混淆器",
+                workSrc: "原始Lua代码",
+                workOut: "混淆输出",
+                workPlaceholder: "粘贴Lua源码，或者上传.lua文件",
+                labUpload: "📂 上传Lua文件",
+                btnObf: "高平流化混淆",
+                btnCopy: "复制结果",
+                btnDl: "下载.lua",
+                btnClear: "清空全部",
+                btnExit: "退出",
+                tipText: "⚙️ 字符串→查表 · 数字→算术式 · 压缩→移除注释",
+                msgCopyOk: "✅ 复制成功！",
+                msgCopyFail: "❌ 复制失败",
+                msgNeedObf: "⚠️ 请先执行混淆",
+                optString: "混淆字符串",
+                optNumber: "混淆数字",
+                optCompress: "压缩代码（单行）",
+                optDepth: "深度",
+                optNumLen: "数字长度",
+                statusObfDone: "✅ 混淆完成",
+                statusError: "❌ 错误: "
+            }
+        };
+
+        // ================================================================
+        //  2.  ЯДРО ОБФУСКАТОРА (JavaScript-порт Python-версии)
+        // ================================================================
+
+        // ---------- 2.1 Конфигурация ----------
+        const DIGITS = "0123456789";
+        const UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        const LOWER = "abcdefghijklmnopqrstuvwxyz";
+        const SPECIAL = (() => {
+            let s = [];
+            for (let i = 32; i < 127; i++) {
+                const ch = String.fromCharCode(i);
+                if (!DIGITS.includes(ch) && !UPPER.includes(ch) && !LOWER.includes(ch)) {
+                    s.push(ch);
+                }
+            }
+            return s.join('');
+        })();
+        const MAX_NUMBER = 10000000000;
+        const VAR_NAME_LEN = 1000;
+
+        // ---------- 2.2 Вспомогательные ----------
+        function randomVarName() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let name = chars[Math.floor(Math.random() * 52)];
+            for (let i = 1; i < VAR_NAME_LEN; i++) {
+                name += chars[Math.floor(Math.random() * chars.length)];
+            }
+            return name;
+        }
+
+        function charGroupAndIndex(ch) {
+            if (DIGITS.includes(ch)) return ['digits', DIGITS.indexOf(ch) + 1];
+            if (UPPER.includes(ch)) return ['upper', UPPER.indexOf(ch) + 1];
+            if (LOWER.includes(ch)) return ['lower', LOWER.indexOf(ch) + 1];
+            if (SPECIAL.includes(ch)) return ['special', SPECIAL.indexOf(ch) + 1];
+            return [null, null];
+        }
+
+        // ---------- 2.3 Генерация таблицы символов ----------
+        function generateTableDef() {
+            const rootVar = randomVarName();
+            const depth = Math.floor(Math.random() * 100) + 1; // 1..100
+            const levelKeys = [];
+            for (let i = 0; i < depth; i++) {
+                levelKeys.push(randomVarName());
+            }
+            const tableKeys = {
+                digits: randomVarName(),
+                upper: randomVarName(),
+                lower: randomVarName(),
+                special: randomVarName()
+            };
+
+            function buildCharTable(chars) {
+                const items = chars.split('').map(c => `string.char(${c.charCodeAt(0)})`).join(', ');
+                return `{ ${items} }`;
+            }
+            const tables = {
+                digits: buildCharTable(DIGITS),
+                upper: buildCharTable(UPPER),
+                lower: buildCharTable(LOWER),
+                special: buildCharTable(SPECIAL)
+            };
+
+            function buildNested(levelIdx) {
+                if (levelIdx === depth) {
+                    const inner = Object.keys(tableKeys).map(k =>
+                        `${tableKeys[k]} = ${tables[k]}`
+                    ).join(', ');
+                    return `{ ${inner} }`;
+                } else {
+                    return `{ ${levelKeys[levelIdx]} = ${buildNested(levelIdx + 1)} }`;
+                }
+            }
+
+            let fullTable;
+            if (depth === 0) {
+                fullTable = '{}';
+            } else {
+                fullTable = `{ ${levelKeys[0]} = ${buildNested(1)} }`;
+            }
+            const tableDef = `local ${rootVar} = ${fullTable}`;
+            return { rootVar, levelKeys, tableKeys, tableDef };
+        }
+
+        // ---------- 2.4 Обработка Lua-экранирования ----------
+        function unescapeLuaString(s) {
+            const result = [];
+            let i = 0;
+            const n = s.length;
+            while (i < n) {
+                if (s[i] === '\\') {
+                    if (i + 1 >= n) { result.push('\\'); break; }
+                    const esc = s[i + 1];
+                    i += 2;
+                    switch (esc) {
+                        case 'a':
+                            result.push('\x07');
+                            break;
+                        case 'b':
+                            result.push('\x08');
+                            break;
+                        case 'f':
+                            result.push('\x0C');
+                            break;
+                        case 'n':
+                            result.push('\x0A');
+                            break;
+                        case 'r':
+                            result.push('\x0D');
+                            break;
+                        case 't':
+                            result.push('\x09');
+                            break;
+                        case 'v':
+                            result.push('\x0B');
+                            break;
+                        case '\\':
+                            result.push('\\');
+                            break;
+                        case '"':
+                            result.push('"');
+                            break;
+                        case "'":
+                            result.push("'");
+                            break;
+                        default:
+                            if (esc >= '0' && esc <= '9') {
+                                let j = i;
+                                while (j < n && s[j] >= '0' && s[j] <= '9' && (j - i) < 3) j++;
+                                const num = parseInt(s.slice(i, j));
+                                i = j;
+                                if (num >= 0 && num <= 255) {
+                                    result.push(String.fromCharCode(num));
+                                } else {
+                                    result.push('?' + num);
+                                }
+                            } else {
+                                result.push('\\' + esc);
+                            }
+                    }
+                } else {
+                    result.push(s[i]);
+                    i++;
+                }
+            }
+            return result.join('');
+        }
+
+        // ---------- 2.5 Обефусцирование строки ----------
+        function obfuscateString(content, rootVar, levelKeys, tableKeys, raw) {
+            if (!content) return "''";
+            let str = content;
+            if (!raw) {
+                str = unescapeLuaString(str);
+            }
+            const parts = [];
+            for (const ch of str) {
+                const code = ch.charCodeAt(0);
+                if (code >= 32 && code <= 126 && ch !== '\\') {
+                    const [group, idx] = charGroupAndIndex(ch);
+                    if (group !== null) {
+                        const path = [rootVar, ...levelKeys, tableKeys[group]].join('.');
+                        parts.push(`${path}[${idx}]`);
+                        continue;
+                    }
+                }
+                // не-ASCII или недоступный символ → UTF-8 байты
+                const encoder = new TextEncoder();
+                const bytes = encoder.encode(ch);
+                const byteExprs = [];
+                for (const b of bytes) {
+                    byteExprs.push(`string.char(${b})`);
+                }
+                parts.push(byteExprs.join(' .. '));
+            }
+            return parts.join(' .. ');
+        }
+
+        // ---------- 2.6 Обефусцирование чисел ----------
+        function generateNumberExpression(n, length, maxNum) {
+            if (length < 1) length = 1;
+            for (let attempt = 0; attempt < 200; attempt++) {
+                const ops = [];
+                for (let i = 0; i < length; i++) {
+                    ops.push(Math.random() < 0.5 ? '+' : '-');
+                }
+                const nums = [];
+                for (let i = 0; i < length; i++) {
+                    nums.push(Math.floor(Math.random() * (maxNum + 1)));
+                }
+                let E = nums[0];
+                for (let i = 0; i < length - 1; i++) {
+                    E = (ops[i] === '+') ? E + nums[i + 1] : E - nums[i + 1];
+                }
+                const opLast = ops[ops.length - 1];
+                let x;
+                if (opLast === '+') {
+                    x = n - E;
+                } else {
+                    x = E - n;
+                }
+                if (x >= 0 && x <= maxNum) {
+                    const parts = [String(nums[0])];
+                    for (let i = 0; i < length - 1; i++) {
+                        parts.push(ops[i]);
+                        parts.push(String(nums[i + 1]));
+                    }
+                    parts.push(opLast);
+                    parts.push(String(x));
+                    return parts.join(' ');
+                }
+            }
+            // fallback
+            const a = Math.floor(Math.random() * (n + 1));
+            return `${a} + ${n - a}`;
+        }
+
+        function obfuscateNumber(nStr, length, maxNum) {
+            const n = parseInt(nStr, 10);
+            if (isNaN(n)) return nStr;
+            const absN = Math.abs(n);
+            const expr = generateNumberExpression(absN, length, maxNum);
+            return n < 0 ? `-(${expr})` : `(${expr})`;
+        }
+
+        // ---------- 2.7 Сжатие кода ----------
+        function compressCode(code) {
+            // Защита строковых литералов
+            const placeholders = {};
+            let counter = 0;
+
+            function protect(match) {
+                const ph = `__PH_${counter}__`;
+                counter++;
+                placeholders[ph] = match;
+                return ph;
+            }
+
+            // Строки в кавычках
+            let protectedCode = code.replace(/(["'])((?:(?!\1|\\).|\\.)*)\1/gs, protect);
+            // Блочные комментарии --[[ ... ]]
+            protectedCode = protectedCode.replace(/--\[\[.*?\]\]/gs, protect);
+            // Строчные комментарии -- ...
+            protectedCode = protectedCode.replace(/--[^\n]*/g, '');
+            // Сжимаем пробелы
+            let compressed = protectedCode.replace(/\s+/g, ' ').trim();
+            // Восстанавливаем защищенные фрагменты
+            for (const [ph, original] of Object.entries(placeholders)) {
+                compressed = compressed.replace(ph, original);
+            }
+            return compressed;
+        }
+
+        // ---------- 2.8 Главная функция обфускации ----------
+        function obfuscateLuaSource(src, enableString, enableNumber, numLength, enableCompress) {
+            let code = src;
+
+            // ---- Строки ----
+            if (enableString) {
+                const { rootVar, levelKeys, tableKeys, tableDef } = generateTableDef();
+
+                // Длинные строки [[...]] или [=[...]=]
+                const longStringRe = /\[(=*)\[(.*?)\]\1\]/gs;
+                code = code.replace(longStringRe, (match, eq, content) => {
+                    return obfuscateString(content, rootVar, levelKeys, tableKeys, true);
+                });
+
+                // Короткие строки '...' и "..."
+                const shortStringRe = /(["'])((?:(?!\1|\\).|\\.)*)\1/gs;
+                code = code.replace(shortStringRe, (match, quote, content) => {
+                    return obfuscateString(content, rootVar, levelKeys, tableKeys, false);
+                });
+
+                // Вставляем определение таблицы
+                const lines = code.split(/\r?\n/);
+                if (lines.length > 0 && lines[0].startsWith('#!')) {
+                    lines.splice(1, 0, tableDef + '\n');
+                } else {
+                    lines.unshift(tableDef + '\n');
+                }
+                code = lines.join('\n');
+            }
+
+            // ---- Числа ----
+            if (enableNumber) {
+                const numberRe = /\b\d+\b/g;
+                code = code.replace(numberRe, (match) => {
+                    return obfuscateNumber(match, numLength, MAX_NUMBER);
+                });
+            }
+
+            // ---- Сжатие ----
+            if (enableCompress) {
+                code = compressCode(code);
+            }
+
+            return code;
+        }
+
+        // ================================================================
+        //  3.  ИНТЕГРАЦИЯ С UI
+        // ================================================================
+
+        let currentLang = "ru";
+
+        // DOM-ссылки
+        const startHome = document.getElementById('startHome');
+        const devPage = document.getElementById('devPage');
+        const settingPage = document.getElementById('settingPage');
+        const workspace = document.getElementById('workspace');
+        const srcLua = document.getElementById('srcLua');
+        const outLua = document.getElementById('outLua');
+        const selLang = document.getElementById('selLang');
+        const tipText = document.getElementById('tipText');
+
+        // Опции
+        const optString = document.getElementById('optString');
+        const optNumber = document.getElementById('optNumber');
+        const optCompress = document.getElementById('optCompress');
+        const optDepth = document.getElementById('optDepth');
+        const optNumLen = document.getElementById('optNumLen');
+
+        // ---------- 3.1 Загрузка/сохранение настроек ----------
+        function loadSettings() {
+            const savedLang = localStorage.getItem('luaobf_lang') || 'ru';
+            currentLang = savedLang;
+            selLang.value = savedLang;
+            // опции
+            try {
+                const s = JSON.parse(localStorage.getItem('luaobf_opts') || '{}');
+                optString.checked = s.optString !== undefined ? s.optString : true;
+                optNumber.checked = s.optNumber !== undefined ? s.optNumber : true;
+                optCompress.checked = s.optCompress || false;
+                optDepth.value = s.optDepth || 100;
+                optNumLen.value = s.optNumLen || 1;
+            } catch (e) { /* ignore */ }
+        }
+
+        function saveSettings() {
+            localStorage.setItem('luaobf_lang', currentLang);
+            localStorage.setItem('luaobf_opts', JSON.stringify({
+                optString: optString.checked,
+                optNumber: optNumber.checked,
+                optCompress: optCompress.checked,
+                optDepth: parseInt(optDepth.value, 10) || 100,
+                optNumLen: parseInt(optNumLen.value, 10) || 1
+            }));
+        }
+
+        // ---------- 3.2 Применение языка ----------
+        function applyLang(lang) {
+            if (!locales[lang]) lang = 'ru';
+            currentLang = lang;
+            document.documentElement.lang = lang;
+            document.title = 'GoreBox - ' + locales[lang].workPageTitle;
+
+            document.getElementById('btnStart').textContent = locales[lang].homeStart;
+            document.getElementById('btnDev').textContent = locales[lang].homeDev;
+            document.getElementById('btnSetting').textContent = locales[lang].homeSet;
+            document.getElementById('devTitle').textContent = locales[lang].devPageTitle;
+            document.getElementById('btnBackDev').textContent = locales[lang].devBack;
+            document.getElementById('setPageTitle').textContent = locales[lang].setPageTitle;
+            document.getElementById('labelLang').textContent = locales[lang].setLangLabel;
+            document.getElementById('btnSettingBack').textContent = locales[lang].devBack;
+            document.getElementById('workTitle').textContent = locales[lang].workPageTitle;
+            document.getElementById('srcLabel').textContent = locales[lang].workSrc;
+            document.getElementById('outLabel').textContent = locales[lang].workOut;
+            srcLua.placeholder = locales[lang].workPlaceholder;
+            document.getElementById('labUpload').textContent = locales[lang].labUpload;
+            document.getElementById('runBtnText').textContent = locales[lang].btnObf;
+            document.getElementById('copyBtnText').textContent = locales[lang].btnCopy;
+            document.getElementById('dlBtnText').textContent = locales[lang].btnDl;
+            document.getElementById('clearBtnText').textContent = locales[lang].btnClear;
+            document.getElementById('exitBtnText').textContent = locales[lang].btnExit;
+            document.getElementById('optStringLabel').textContent = locales[lang].optString;
+            document.getElementById('optNumberLabel').textContent = locales[lang].optNumber;
+            document.getElementById('optCompressLabel').textContent = locales[lang].optCompress;
+            document.getElementById('optDepthLabel').textContent = locales[lang].optDepth;
+            document.getElementById('optNumLenLabel').textContent = locales[lang].optNumLen;
+            tipText.textContent = locales[lang].tipText;
+        }
+
+        // ---------- 3.3 Навигация ----------
+        document.getElementById('btnStart').onclick = () => {
+            startHome.style.display = 'none';
+            workspace.style.display = 'block';
+        };
+        document.getElementById('btnDev').onclick = () => {
+            startHome.style.display = 'none';
+            devPage.style.display = 'block';
+        };
+        document.getElementById('btnSetting').onclick = () => {
+            startHome.style.display = 'none';
+            settingPage.style.display = 'block';
+        };
+        document.getElementById('btnBackDev').onclick = () => {
+            devPage.style.display = 'none';
+            startHome.style.display = 'flex';
+        };
+        document.getElementById('btnSettingBack').onclick = () => {
+            settingPage.style.display = 'none';
+            startHome.style.display = 'flex';
+        };
+        document.getElementById('exitBtnText').onclick = () => {
+            workspace.style.display = 'none';
+            startHome.style.display = 'flex';
+        };
+
+        // ---------- 3.4 Язык ----------
+        selLang.onchange = () => {
+            currentLang = selLang.value;
+            saveSettings();
+            applyLang(currentLang);
+        };
+
+        // ---------- 3.5 Загрузка файла ----------
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                srcLua.value = ev.target.result;
+                tipText.textContent = `📄 ${file.name} (${file.size} bytes)`;
+            };
+            reader.readAsText(file);
+            e.target.value = '';
+        });
+
+        // ---------- 3.6 Копирование ----------
+        function copyOutput() {
+            const val = outLua.value;
+            if (!val) {
+                alert(locales[currentLang].msgNeedObf);
+                return;
+            }
+            navigator.clipboard.writeText(val).then(() => {
+                alert(locales[currentLang].msgCopyOk);
+            }).catch(() => {
+                alert(locales[currentLang].msgCopyFail);
+            });
+        }
+
+        // ---------- 3.7 Скачивание ----------
+        function downloadObf() {
+            const content = outLua.value;
+            if (!content) {
+                alert(locales[currentLang].msgNeedObf);
+                return;
+            }
+            const blob = new Blob([content], { type: 'text/plain' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'obfuscated.lua';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(a.href);
+        }
+
+        // ---------- 3.8 Очистка ----------
+        function clearAll() {
+            srcLua.value = '';
+            outLua.value = '';
+            tipText.textContent = locales[currentLang].tipText;
+        }
+
+        // ---------- 3.9 ГЛАВНАЯ КНОПКА ОБФУСКАЦИИ ----------
+        function luaObfuscate() {
+            const src = srcLua.value;
+            if (!src.trim()) {
+                tipText.textContent = '⚠️ ' + locales[currentLang].workPlaceholder;
+                return;
+            }
+
+            const enableString = optString.checked;
+            const enableNumber = optNumber.checked;
+            const enableCompress = optCompress.checked;
+            const numLength = parseInt(optNumLen.value, 10) || 1;
+            // depth используется внутри generateTableDef (случайная глубина от 1 до 100)
+            // но пользователь может влиять через optDepth — используем как seed-параметр
+            // В оригинале глубина случайна, но мы добавим детерминированность через seed
+            // (не реализовано в полной мере, но оставим параметр для совместимости)
+
+            try {
+                const result = obfuscateLuaSource(src, enableString, enableNumber, numLength, enableCompress);
+                outLua.value = result;
+                tipText.textContent = '✅ ' + locales[currentLang].statusObfDone + '  |  ' + locales[currentLang].tipText;
+                saveSettings();
+            } catch (e) {
+                tipText.textContent = locales[currentLang].statusError + e.message;
+                console.error(e);
+            }
+        }
+
+        // ---------- 3.10 Привязка кнопок ----------
+        document.getElementById('runBtnText').onclick = luaObfuscate;
+        document.getElementById('copyBtnText').onclick = copyOutput;
+        document.getElementById('dlBtnText').onclick = downloadObf;
+        document.getElementById('clearBtnText').onclick = clearAll;
+
+        // ---------- 3.11 Сохранение опций при изменении ----------
+        [optString, optNumber, optCompress, optDepth, optNumLen].forEach(el => {
+            el.addEventListener('change', saveSettings);
+            if (el.tagName === 'INPUT' && el.type === 'number') {
+                el.addEventListener('input', saveSettings);
+            }
+        });
+
+        // ---------- 3.12 Инициализация ----------
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSettings();
+            applyLang(currentLang);
+            // Показываем подсказку
+            tipText.textContent = locales[currentLang].tipText;
+        });
+
+        // ---------- 3.13 Защита от контекстного меню / копирования (кроме textarea) ----------
+        document.addEventListener('contextmenu', (e) => {
+            if (e.target.tagName !== 'TEXTAREA') {
+                e.preventDefault();
+                return false;
+            }
+        });
+        document.addEventListener('copy', (e) => {
+            if (e.target.tagName !== 'TEXTAREA') {
+                e.preventDefault();
+                return false;
+            }
+        });
+
+        // ---------- 3.14 Экспорт функций в глобальный скоуп (для onclick в HTML) ----------
+        window.luaObfuscate = luaObfuscate;
+        window.copyOutput = copyOutput;
+        window.downloadObf = downloadObf;
+        window.clearAll = clearAll;
+    </script>
+</body>
+</html>
